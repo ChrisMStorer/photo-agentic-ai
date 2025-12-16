@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Interface</title>
+    <style>
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 2s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading {
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Agent</h1>
+    <textarea id="prompt" rows="10" cols="40" placeholder="Enter your prompt"></textarea>
+    <br>
+    <button id="submitBtn" onclick="callAgent()">Submit</button>
+    <div id="response"></div>
+
+    <script>
+        async function callAgent() {
+            const prompt = document.getElementById('prompt').value;
+            if (!prompt) return;
+            const responseDiv = document.getElementById('response');
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            responseDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
+            try {
+                const res = await fetch('/agent', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    responseDiv.textContent = data.response;
+                } else {
+                    responseDiv.className = 'error';
+                    responseDiv.textContent = 'Error: ' + (data.detail || 'Unknown error');
+                }
+            } catch (error) {
+                responseDiv.className = 'error';
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+            finally {
+                submitBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

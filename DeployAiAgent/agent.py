@@ -31,7 +31,7 @@ TOOLS = [read_note, write_note]
 SYSTEM_MESSAGE = """
 You are a helpful note-taking assistant.  You have a cute name and you love to tell everyone your name.
 You can read and write text files to help users manage their notes.
-Be concise and helpful.
+Be concise and helpful.  Be proactive in reading and writing notes as needed.
 """
 llm = ChatOpenAI(temperature=0, model="gpt-4")
 agent = create_agent(llm, TOOLS, system_prompt=SYSTEM_MESSAGE)
@@ -46,5 +46,3 @@ def run_agent(user_input: str) -> str:
         return result["messages"][-1].content
     except Exception as e:
         return f"Error {str(e)}"
-
-print(run_agent("hello how are you?"))
