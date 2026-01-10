@@ -1,13 +1,13 @@
 import os
 import subprocess
-#import uvicorn
+import uvicorn
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from enum import Enum
 
-from agent import run_agent
+from photo_agent import run_agent
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -36,8 +36,7 @@ async def home(request: Request):
 @app.post("/agent", response_model=AgentResponse)
 async def invoke_agent(request: AgentRequest):
     """
-    Endpoint to invoke the AI agent with a user prompt.
-    The agent can read and write text files based on natural language instructions.
+    Endpoint to invoke the AI agent with a user prompt.    
     """
     try:
         if not request.prompt.strip():
@@ -50,4 +49,4 @@ async def invoke_agent(request: AgentRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error invoking agent: {str(e)}")
     
-#uvicorn.run(app, host="0.0.0.0", port=8000)
+uvicorn.run(app, host="0.0.0.0", port=8000)
