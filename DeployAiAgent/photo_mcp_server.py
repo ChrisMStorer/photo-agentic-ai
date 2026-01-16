@@ -1,16 +1,17 @@
-
 import asyncio
-from mcp import Tool
-from mcp.server import Server
-import mcp.server.stdio
+import logging
+from fastmcp import FastMCP
 import exifread
 from geopy.geocoders import Nominatim
-server = Server("photo-agent")
+server = FastMCP("photo-mcp-server")
 
-@server.call_tool()
+logging.basicConfig(level=logging.INFO, filename='photo_mcp_server.log', filemode='a')
+
+
+@server.tool()
 def get_location_name_from_gps_coords(latitude: float, longitude: float) -> str:
     """Get location name from GPS coordinates using Nominatim API"""
-    breakpoint
+    logging.info(f"Getting location name for coordinates: {latitude}, {longitude}")
     geolocator = Nominatim(user_agent="note_taking_agent")
     location = geolocator.reverse((latitude, longitude), exactly_one=True)
     if location:
@@ -18,10 +19,10 @@ def get_location_name_from_gps_coords(latitude: float, longitude: float) -> str:
     else:
         return f"Could not find location for coordinates ({latitude}, {longitude})"
 
-@server.call_tool()
+@server.tool()
 def get_image_location_metadata(filepath: str) -> str:
     """Get image location metadata from a file using ExifRead"""
-    breakpoint
+    logging.info(f"Getting image location metadata for file: {filepath}")
     try:
         with open(filepath, 'rb') as f:
             tags = exifread.process_file(f)
@@ -32,9 +33,12 @@ def get_image_location_metadata(filepath: str) -> str:
         else:
             return f"No GPS metadata found in {filepath}."
     except FileNotFoundError:
+        logging.error(f"File not found: {filepath}")
         return f"Error: The file {filepath} was not found."
     except Exception as e:
+        logging.error(f"An error occurred while reading metadata from {filepath}: {str(e)}")
         return f"An error occurred while reading metadata from {filepath}: {str(e)}"
 
 if __name__ == "__main__":
-    mcp.server.stdio.run_server(server)
+    logging.info("Starting photo MCP server")
+    server.run(transport="stdio")

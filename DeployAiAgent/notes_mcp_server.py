@@ -1,9 +1,7 @@
 import asyncio
-from mcp import Tool
-from mcp.server import Server
-import mcp.server.stdio
+from fastmcp import FastMCP
 
-server = Server("notes-agent")
+server = FastMCP("notes-server")
 
 @server.tool()
 def read_note(filepath: str) -> str:
@@ -28,4 +26,4 @@ def write_note(filepath: str, content: str) -> str:
         return f"An error occurred while writing to {filepath}: {str(e)}"
 
 if __name__ == "__main__":
-    mcp.server.stdio.run_server(server)
+    server.run(transport="stdio")
